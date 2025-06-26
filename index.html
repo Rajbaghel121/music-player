@@ -1,21 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Music Player</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Upload & Play MP3</title>
+  <style>
+    body {
+      background-color: #101820;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    input[type="file"] {
+      margin: 20px;
+      padding: 10px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    audio {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 500px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎧 My Music Player</h1>
-    <input type="text" id="searchInput" placeholder="Search songs...">
-    <ul id="playlist">
-      <li data-src="songs/song1.mp3">🎵 Chaleya - Jawan</li>
-      <li data-src="songs/song2.mp3">🎵 Kesariya - Brahmastra</li>
-    </ul>
-    <audio id="audioPlayer" controls></audio>
-  </div>
-  <script src="script.js"></script>
+
+  <h1>🎵 Upload & Play Music</h1>
+
+  <input type="file" id="fileInput" accept="audio/*">
+  <br>
+  <audio id="audioPlayer" controls></audio>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    fileInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        audioPlayer.src = url;
+        audioPlayer.play();
+      }
+    });
+  </script>
+
 </body>
 </html>
