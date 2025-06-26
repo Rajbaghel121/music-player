@@ -2,86 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>HD Camera with Effects</title>
+  <title>Smart Camera App</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      background-color: #101820;
+      background-color: #000;
       color: #fff;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 20px;
+      font-size: 24px;
       text-align: center;
-      padding: 20px;
     }
-    video, canvas {
+
+    #video {
       width: 90%;
-      max-width: 400px;
-      border-radius: 10px;
-      margin: 10px 0;
-      box-shadow: 0 0 20px #0ff;
+      max-width: 480px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #0ff;
+      object-fit: cover;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    select, button {
       margin: 10px;
-    }
-    select {
-      padding: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
       border-radius: 10px;
-      font-size: 14px;
+      border: none;
+      outline: none;
+      background-color: #0ff;
+      color: #000;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    select:focus, button:hover {
+      background-color: #00bcd4;
+    }
+
+    canvas {
+      margin-top: 20px;
+      max-width: 480px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #fff;
+    }
+
+    #photoLabel {
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <h1>📸 HD Camera App with Filters</h1>
+  <h1>📸 Smart HD Camera App</h1>
 
-  <video id="video" autoplay></video><br>
+  <video id="video" autoplay playsinline></video>
 
-  <label for="filter">Choose Filter:</label>
-  <select id="filter">
-    <option value="none">None</option>
-    <option value="grayscale(100%)">Grayscale</option>
-    <option value="sepia(100%)">Sepia</option>
-    <option value="contrast(150%)">High Contrast</option>
-    <option value="saturate(200%)">Saturated</option>
-    <option value="blur(2px)">Blur</option>
-  </select>
+  <div class="controls">
+    <select id="filter">
+      <option value="none">No Filter</option>
+      <option value="grayscale(100%)">Grayscale</option>
+      <option value="sepia(100%)">Sepia</option>
+      <option value="contrast(160%)">High Contrast</option>
+      <option value="saturate(200%)">Saturation</option>
+      <option value="blur(2px)">Blur</option>
+    </select>
 
-  <br><button id="clickPhoto">📸 Take Photo</button>
+    <button id="snap">📷 Click Photo</button>
+  </div>
 
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas" style="display: none;"></canvas>
+  <div id="photoLabel"></div>
 
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
-    const clickPhoto = document.getElementById("clickPhoto");
+    const snap = document.getElementById("snap");
     const filter = document.getElementById("filter");
+    const photoLabel = document.getElementById("photoLabel");
 
-    // Start camera
+    // Start Camera
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
       })
       .catch(err => {
-        alert("Camera access blocked: " + err);
+        alert("Camera access failed: " + err.message);
       });
 
-    // Apply filter live
+    // Apply selected filter to video live
     filter.addEventListener("change", () => {
       video.style.filter = filter.value;
     });
 
-    // Take photo
-    clickPhoto.addEventListener("click", () => {
-      const context = canvas.getContext("2d");
+    // Click Photo
+    snap.addEventListener("click", () => {
+      const ctx = canvas.getContext("2d");
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      context.filter = filter.value;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.filter = filter.value;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.style.display = "block";
+      photoLabel.innerText = "📸 Photo Clicked Below:";
     });
   </script>
 
