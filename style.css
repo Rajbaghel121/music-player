@@ -1,32 +1,49 @@
 body {
+  margin: 0;
   font-family: sans-serif;
-  background: #101820;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
+  background: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
-.container {
+
+.camera-container {
+  position: relative;
+  width: 90vw;
   max-width: 500px;
-  margin: auto;
+  border: 5px solid #333;
+  border-radius: 10px;
+  background: #000;
+  overflow: hidden;
 }
-input[type="text"] {
+
+video {
   width: 100%;
+  filter: none;
+  transition: 0.3s;
+}
+
+.controls, .filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
+  background: #222;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 15px;
   border: none;
-}
-#playlist {
-  list-style: none;
-  padding: 0;
-}
-#playlist li {
-  background: #1a1a1a;
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 5px;
+  border-radius: 6px;
+  background: #444;
+  color: white;
   cursor: pointer;
+  transition: 0.3s;
 }
-#playlist li:hover {
-  background: #333;
+
+button:hover {
+  background: #666;
 }
