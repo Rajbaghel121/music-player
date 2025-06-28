@@ -1,131 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Smart Camera App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Web Camera</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
-      background-color: #000;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: white;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
-    }
+    }.camera-container {
+  position: relative;
+  width: 90vw;
+  max-width: 500px;
+  border: 5px solid #333;
+  border-radius: 10px;
+  background: #000;
+  overflow: hidden;
+}
 
-    h1 {
-      margin: 20px;
-      font-size: 24px;
-      text-align: center;
-    }
+video {
+  width: 100%;
+  filter: none;
+  transition: 0.3s;
+}
 
-    #video {
-      width: 90%;
-      max-width: 480px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px #0ff;
-      object-fit: cover;
-    }
+.controls, .filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 10px;
+  background: #222;
+}
 
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
 
-    select, button {
-      margin: 10px;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #0ff;
-      color: #000;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
+button:hover {
+  background: #666;
+}
 
-    select:focus, button:hover {
-      background-color: #00bcd4;
-    }
-
-    canvas {
-      margin-top: 20px;
-      max-width: 480px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #fff;
-    }
-
-    #photoLabel {
-      margin-top: 10px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
+  <div class="camera-container">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div class="controls">
+      <button onclick="toggleCamera()">🔄 Switch Camera</button>
+      <button onclick="toggleFlash()">💡 Flash</button>
+      <button onclick="capturePhoto()">📷 Capture</button>
+      <button onclick="downloadPhoto()">⬇️ Download</button>
+    </div>
+    <div class="filters">
+      <button onclick="applyFilter('none')">No Filter</button>
+      <button onclick="applyFilter('grayscale(100%)')">Grayscale</button>
+      <button onclick="applyFilter('sepia(100%)')">Sepia</button>
+      <button onclick="applyFilter('invert(100%)')">Invert</button>
+      <button onclick="applyFilter('contrast(200%)')">Contrast</button>
+      <button onclick="applyFilter('brightness(150%)')">Bright</button>
+      <button onclick="applyFilter('blur(3px)')">Blur</button>
+      <button onclick="applyFilter('hue-rotate(90deg)')">Hue</button>
+      <button onclick="applyFilter('saturate(200%)')">Saturate</button>
+      <button onclick="applyFilter('opacity(50%)')">Opacity</button>
+      <button onclick="applyFilter('drop-shadow(8px 8px 10px red)')">Shadow</button>
+      <button onclick="applyFilter('contrast(50%)')">Low Contrast</button>
+      <button onclick="applyFilter('brightness(50%)')">Dark</button>
+      <button onclick="applyFilter('hue-rotate(180deg)')">Crazy Hue</button>
+      <button onclick="applyFilter('sepia(50%) brightness(120%)')">Vintage</button>
+    </div>
+  </div>  <script>
+    let video = document.getElementById("video");
+    let canvas = document.getElementById("canvas");
+    let currentStream;
+    let useFrontCamera = true;
+    let flashEnabled = false;
 
-  <h1>📸 Smart HD Camera App</h1>
+    async function startCamera() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
 
-  <video id="video" autoplay playsinline></video>
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: useFrontCamera ? "user" : "environment"
+          }
+        });
+        video.srcObject = currentStream;
+      } catch (e) {
+        alert("Camera not accessible: " + e);
+      }
+    }
 
-  <div class="controls">
-    <select id="filter">
-      <option value="none">No Filter</option>
-      <option value="grayscale(100%)">Grayscale</option>
-      <option value="sepia(100%)">Sepia</option>
-      <option value="contrast(160%)">High Contrast</option>
-      <option value="saturate(200%)">Saturation</option>
-      <option value="blur(2px)">Blur</option>
-    </select>
+    function toggleCamera() {
+      useFrontCamera = !useFrontCamera;
+      startCamera();
+    }
 
-    <button id="snap">📷 Click Photo</button>
-  </div>
+    function toggleFlash() {
+      flashEnabled = !flashEnabled;
+      video.style.filter = flashEnabled ? "brightness(150%)" : "none";
+    }
 
-  <canvas id="canvas" style="display: none;"></canvas>
-  <div id="photoLabel"></div>
+    function applyFilter(filter) {
+      video.style.filter = filter;
+    }
 
-  <script>
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const snap = document.getElementById("snap");
-    const filter = document.getElementById("filter");
-    const photoLabel = document.getElementById("photoLabel");
-
-    // Start Camera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        alert("Camera access failed: " + err.message);
-      });
-
-    // Apply selected filter to video live
-    filter.addEventListener("change", () => {
-      video.style.filter = filter.value;
-    });
-
-    // Click Photo
-    snap.addEventListener("click", () => {
-      const ctx = canvas.getContext("2d");
+    function capturePhoto() {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      ctx.filter = filter.value;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.style.display = "block";
-      photoLabel.innerText = "📸 Photo Clicked Below:";
-    });
-  </script>
+      let context = canvas.getContext("2d");
+      context.filter = video.style.filter;
+      context.drawImage(video, 0, 0);
+    }
 
-</body>
+    function downloadPhoto() {
+      capturePhoto();
+      const link = document.createElement("a");
+      link.download = "captured-image.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    startCamera();
+  </script></body>
 </html>
